@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "cheerio": "^0.17.0",
+    "pastebin-js": "^0.1.6",
     "request": "^2.40.0",
     "twit": "^1.1.18",
     "underscore.deferred": "^0.4.0"
