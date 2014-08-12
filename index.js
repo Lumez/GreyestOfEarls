@@ -10,7 +10,8 @@ var pastebin = new PastebinAPI(config.pastebin);
 
 var roundCommencing = false,
   round = [],
-  orders = [];
+  orders = [],
+  counter = 0;
 
 var getRandArrayElement = function(array) {
   var index = Math.floor(array.length*Math.random());
@@ -21,11 +22,12 @@ var startTeaRound = function(tweet) {
   round = [];
   orders = [];
   roundCommencing = true;
+  counter++;
 
   console.log('===================');
   console.log('Commence Tea Round!');
   console.log('===================');
-  var status = '@' + tweet.user.screen_name + ' has initiated a tea round. Get your orders in within 1 minute!';
+  var status = '@' + tweet.user.screen_name + ' has initiated tea round #' + counter + '. Get your orders in within 1 minute!';
   T.post('statuses/update', {status: status}, function(err, data, response) {
     //console.log(data);
   });
@@ -37,7 +39,11 @@ var startTeaRound = function(tweet) {
 
 var stopTeaRound = function() {
   roundCommencing = false;
-  
+
+  console.log('===============');
+  console.log('Round Finished!');
+  console.log('===============');
+
   var order = orders.join('\n');
 
   pastebin.createPaste(order, 'Round Order', undefined, 1, '10M')
@@ -66,14 +72,17 @@ var stream = T.stream('user', {track: '@greyestofearls'});
 console.log('Listening for tweets...');
 
 stream.on('tweet', function (tweet) {
-  console.log('Got Tweet from:' + tweet.user.screen_name + '...');
+  // If the tweet picked up is not from Earl Grey himself, do something about it
   if (tweet.user.screen_name != 'greyestofearls') {
-    console.log('Adding ' + tweet.user.screen_name + ' to tea list.');
-    round.push(tweet.user.screen_name);
-    orders.push(tweet.text);
+    console.log('Got Tweet from:' + tweet.user.screen_name + '...');
 
     if (!roundCommencing) {
       startTeaRound(tweet);
     }
+
+    console.log('Adding ' + tweet.user.screen_name + ' to tea round.');
+    console.log('Storing order: "' + tweet.text + '"');
+    round.push(tweet.user.screen_name);
+    orders.push(tweet.user.screen_name + ' - "' + tweet.text + '"');
   }
 })
